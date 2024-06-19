@@ -1,0 +1,80 @@
+package com.projects.lms.finallms;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class BookDAO {
+    // Method to add a book to the database
+    public void addBook(Book book) {
+        String sql = "INSERT INTO Books (Title, Author, ISBN, Available) VALUES (?, ?, ?, ?)";
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, book.getTitle());
+            pstmt.setString(2, book.getAuthor());
+            pstmt.setString(3, book.getIsbn());
+            pstmt.setBoolean(4, book.isAvailable());
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        book.setBookID(rs.getInt(1));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to remove a book from the database
+    public void removeBook(int bookID) {
+        String sql = "DELETE FROM Books WHERE BookID = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, bookID);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to update book availability in the database
+    public void updateBookAvailability(int bookID, boolean isAvailable) {
+        String sql = "UPDATE Books SET Available = ? WHERE BookID = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setBoolean(1, isAvailable);
+            pstmt.setInt(2, bookID);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to retrieve all books from the database
+    public List<Book> getAllBooks() {
+        List<Book> books = new ArrayList<>();
+        String sql = "SELECT * FROM Books";
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                Book book = new Book(
+                        rs.getString("Title"),
+                        rs.getString("Author"),
+                        rs.getString("ISBN")
+                );
+                book.setBookID(rs.getInt("BookID"));
+                book.setAvailable(rs.getBoolean("Available"));
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
+}

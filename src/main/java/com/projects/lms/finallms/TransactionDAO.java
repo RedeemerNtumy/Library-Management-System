@@ -1,0 +1,71 @@
+package com.projects.lms.finallms;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TransactionDAO {
+    // Method to add a transaction to the database
+    public void addTransaction(Transaction transaction) {
+        String sql = "INSERT INTO Transactions (BookID, PatronID, DateBorrowed, DateDue) VALUES (?, ?, ?, ?)";
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            pstmt.setInt(1, transaction.getBookID());
+            pstmt.setInt(2, transaction.getPatronID());
+            pstmt.setDate(3, new java.sql.Date(transaction.getDateBorrowed().getTime()));
+            pstmt.setDate(4, new java.sql.Date(transaction.getDateDue().getTime()));
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        transaction.setTransactionID(rs.getInt(1));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to update a transaction in the database (for returning a book)
+    public void updateTransaction(Transaction transaction) {
+        String sql = "UPDATE Transactions SET DateReturned = ? WHERE TransactionID = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDate(1, new java.sql.Date(transaction.getDateReturned().getTime()));
+            pstmt.setInt(2, transaction.getTransactionID());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to retrieve all transactions from the database
+    public List<Transaction> getAllTransactions() {
+        List<Transaction> transactions = new ArrayList<>();
+        String sql = "SELECT t.TransactionID, t.BookID, p.Name AS PatronName, t.DateBorrowed, t.DateDue, t.DateReturned " +
+                "FROM Transactions t " +
+                "JOIN Patrons p ON t.PatronID = p.PatronID";
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                Transaction transaction = new Transaction(
+                        rs.getInt("TransactionID"),
+                        rs.getInt("BookID"),
+                        rs.getString("PatronName"),
+                        rs.getDate("DateBorrowed"),
+                        rs.getDate("DateDue"),
+                        rs.getDate("DateReturned")
+                );
+                transactions.add(transaction);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return transactions;
+    }
+}
