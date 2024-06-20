@@ -9,29 +9,20 @@ public class Patron {
         this.name = name;
         this.email = email;
     }
-
     // Getters and Setters
     public int getPatronID() {
         return patronID;
     }
-
     public void setPatronID(int patronID) {
         this.patronID = patronID;
     }
-
-    public String getName() {
-        return name;
-    }
-
+    public String getName() {return name;}
     public void setName(String name) {
         this.name = name;
     }
-
     public String getEmail() {
         return email;
     }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    @Override
+    public String toString() {return name;}  // Return the patron's name for display in the ComboBox
 }

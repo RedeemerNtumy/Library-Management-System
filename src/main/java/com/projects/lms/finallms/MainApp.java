@@ -6,12 +6,17 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.util.Date;
+import java.util.List;
 
 public class MainApp extends Application {
     private TableView<Book> bookTableView = new TableView<>();
@@ -27,44 +32,64 @@ public class MainApp extends Application {
 
         // Tabs setup
         TabPane tabPane = new TabPane();
+        tabPane.setStyle("-fx-background-color: #F6E6CB;");
 
         // Books Tab
         VBox booksLayout = new VBox(10);
+        booksLayout.setPadding(new Insets(30));
+        booksLayout.setAlignment(Pos.CENTER);
+
         TextField titleField = new TextField();
         titleField.setPromptText("Title");
         TextField authorField = new TextField();
         authorField.setPromptText("Author");
         TextField isbnField = new TextField();
         isbnField.setPromptText("ISBN");
+
+        HBox buttonLayout = new HBox(10);
+        buttonLayout.setAlignment(Pos.CENTER);
+
         Button addBookButton = new Button("Add Book");
         addBookButton.setOnAction(e -> addBook(titleField.getText(), authorField.getText(), isbnField.getText()));
         Button removeBookButton = new Button("Remove Book");
         removeBookButton.setOnAction(e -> removeBook());
-        booksLayout.getChildren().addAll(new Label("Book Management"), titleField, authorField, isbnField, addBookButton, removeBookButton, bookTableView);
+        Button borrowBookButton = new Button("Borrow Book");
+        borrowBookButton.setOnAction(e -> showBorrowBookForm());
+        Button returnBookButton = new Button("Return Book");
+        returnBookButton.setOnAction(e -> returnBook());
+
+        buttonLayout.getChildren().addAll(addBookButton, removeBookButton, borrowBookButton, returnBookButton);
+        booksLayout.getChildren().addAll(new Label("Book Management"), bookTableView, titleField, authorField, isbnField, buttonLayout);
         Tab booksTab = new Tab("Books", booksLayout);
         booksTab.setClosable(false);
 
         // Patrons Tab
         VBox patronsLayout = new VBox(10);
+        patronsLayout.setPadding(new Insets(30));
+        patronsLayout.setAlignment(Pos.CENTER);
+
         TextField nameField = new TextField();
         nameField.setPromptText("Name");
         TextField emailField = new TextField();
         emailField.setPromptText("Email");
+
         Button addPatronButton = new Button("Add Patron");
         addPatronButton.setOnAction(e -> addPatron(nameField.getText(), emailField.getText()));
         Button removePatronButton = new Button("Remove Patron");
         removePatronButton.setOnAction(e -> removePatron());
-        patronsLayout.getChildren().addAll(new Label("Patron Management"), nameField, emailField, addPatronButton, removePatronButton, patronTableView);
+
+        HBox patronButtonLayout = new HBox(10);
+        patronButtonLayout.setAlignment(Pos.CENTER);
+        patronButtonLayout.getChildren().addAll(addPatronButton, removePatronButton);
+        patronsLayout.getChildren().addAll(new Label("Patron Management"), patronTableView, nameField, emailField, patronButtonLayout);
         Tab patronsTab = new Tab("Patrons", patronsLayout);
         patronsTab.setClosable(false);
 
         // Transactions Tab
         VBox transactionsLayout = new VBox(10);
-        Button borrowBookButton = new Button("Borrow Book");
-        borrowBookButton.setOnAction(e -> borrowBook());
-        Button returnBookButton = new Button("Return Book");
-        returnBookButton.setOnAction(e -> returnBook());
-        transactionsLayout.getChildren().addAll(new Label("Transaction Management"), borrowBookButton, returnBookButton, transactionTableView);
+        transactionsLayout.setPadding(new Insets(30));
+        transactionsLayout.setAlignment(Pos.CENTER);
+        transactionsLayout.getChildren().addAll(new Label("Transaction History"), transactionTableView);
         Tab transactionsTab = new Tab("Transactions", transactionsLayout);
         transactionsTab.setClosable(false);
 
@@ -90,6 +115,8 @@ public class MainApp extends Application {
         bookTableView.getColumns().addAll(titleColumn, authorColumn, isbnColumn, availableColumn);
         bookTableView.setItems(FXCollections.observableArrayList(bookListManager.getBooks()));
 
+        bookTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         // Initialize patron table columns
         TableColumn<Patron, String> nameColumn = new TableColumn<>("Name");
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
@@ -98,19 +125,25 @@ public class MainApp extends Application {
         patronTableView.getColumns().addAll(nameColumn, emailColumn);
         patronTableView.setItems(FXCollections.observableArrayList(patronListManager.getPatrons()));
 
+        patronTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         // Initialize transaction table columns
-        TableColumn<Transaction, Integer> bookIdColumn = new TableColumn<>("BookID");
+        TableColumn<Transaction, Integer> bookIdColumn = new TableColumn<>("Book ID");
         bookIdColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getBookID()).asObject());
         TableColumn<Transaction, String> patronNameColumn = new TableColumn<>("Patron Name");
         patronNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPatronName()));
+        TableColumn<Transaction, String> bookTitleColumn = new TableColumn<>("Book Title");
+        bookTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getBookTitle()));
         TableColumn<Transaction, Date> dateBorrowedColumn = new TableColumn<>("Date Borrowed");
         dateBorrowedColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getDateBorrowed()));
         TableColumn<Transaction, Date> dateDueColumn = new TableColumn<>("Date Due");
         dateDueColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getDateDue()));
         TableColumn<Transaction, Date> dateReturnedColumn = new TableColumn<>("Date Returned");
         dateReturnedColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getDateReturned()));
-        transactionTableView.getColumns().addAll(bookIdColumn, patronNameColumn, dateBorrowedColumn, dateDueColumn, dateReturnedColumn);
+        transactionTableView.getColumns().addAll(bookIdColumn, patronNameColumn, bookTitleColumn, dateBorrowedColumn, dateDueColumn, dateReturnedColumn);
         transactionTableView.setItems(FXCollections.observableArrayList(transactionDAO.getAllTransactions()));
+
+        transactionTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     private void addBook(String title, String author, String isbn) {
@@ -118,10 +151,15 @@ public class MainApp extends Application {
             showAlert("Please fill all fields.");
             return;
         }
+        if (bookListManager.getBooks().stream().anyMatch(book -> book.getIsbn().equals(isbn))) {
+            showAlert("A book with this ISBN already exists.");
+            return;
+        }
         Book newBook = new Book(title, author, isbn);
         bookListManager.addBook(newBook);
         bookTableView.setItems(FXCollections.observableArrayList(bookListManager.getBooks()));
     }
+
 
     private void removeBook() {
         Book selectedBook = bookTableView.getSelectionModel().getSelectedItem();
@@ -130,6 +168,65 @@ public class MainApp extends Application {
             bookTableView.setItems(FXCollections.observableArrayList(bookListManager.getBooks()));
         } else {
             showAlert("No book selected.");
+        }
+    }
+
+    private void showBorrowBookForm() {
+        Book selectedBook = bookTableView.getSelectionModel().getSelectedItem();
+        if (selectedBook == null || !selectedBook.isAvailable()) {
+            showAlert("Please select an available book.");
+            return;
+        }
+        VBox layout = new VBox(10);
+        Stage borrowStage = new Stage();
+        borrowStage.initModality(Modality.APPLICATION_MODAL);
+        borrowStage.setTitle("Borrow Book");
+
+        layout.setPadding(new Insets(30));
+        DatePicker issueDatePicker = new DatePicker();
+        DatePicker returnDatePicker = new DatePicker();
+        ComboBox<Patron> patronComboBox = new ComboBox<>(FXCollections.observableArrayList(patronListManager.getPatrons()));
+        Button saveButton = new Button("Save");
+        saveButton.setOnAction(e -> {
+            if (issueDatePicker.getValue() != null && returnDatePicker.getValue() != null && patronComboBox.getValue() != null) {
+                borrowBook(selectedBook, patronComboBox.getValue(), java.sql.Date.valueOf(issueDatePicker.getValue()), java.sql.Date.valueOf(returnDatePicker.getValue()));
+                borrowStage.close();
+            } else {
+                showAlert("Please fill all fields.");
+            }
+        });
+
+        layout.getChildren().addAll(new Label("Issue Date:"), issueDatePicker, new Label("Return Date:"), returnDatePicker, new Label("Select Patron:"), patronComboBox, saveButton);
+        Scene scene = new Scene(layout, 400, 300);
+        borrowStage.setScene(scene);
+        borrowStage.show();
+    }
+
+    private void borrowBook(Book book, Patron patron, java.sql.Date issueDate, java.sql.Date returnDate) {
+        Transaction newTransaction = new Transaction(book.getBookID(), book.getTitle(), patron.getPatronID(), patron.getName(), issueDate, returnDate);
+        transactionDAO.addTransaction(newTransaction);
+        book.setAvailable(false);
+        bookListManager.updateBookAvailability(book.getBookID(), false);
+        bookTableView.refresh();
+        transactionTableView.setItems(FXCollections.observableArrayList(transactionDAO.getAllTransactions()));
+    }
+
+    private void returnBook() {
+        Book selectedBook = bookTableView.getSelectionModel().getSelectedItem();
+        if (selectedBook != null && !selectedBook.isAvailable()) {
+            List<Transaction> transactions = transactionDAO.getAllTransactions();
+            for (Transaction transaction : transactions) {
+                if (transaction.getBookID() == selectedBook.getBookID() && transaction.getDateReturned() == null) {
+                    transaction.setDateReturned(new java.sql.Date(System.currentTimeMillis()));
+                    transactionDAO.updateTransaction(transaction);
+                    bookListManager.updateBookAvailability(selectedBook.getBookID(), true);
+                    bookTableView.refresh();
+                    transactionTableView.setItems(FXCollections.observableArrayList(transactionDAO.getAllTransactions()));
+                    break;
+                }
+            }
+        } else {
+            showAlert("No borrowed book selected.");
         }
     }
 
@@ -150,41 +247,6 @@ public class MainApp extends Application {
             patronTableView.setItems(FXCollections.observableArrayList(patronListManager.getPatrons()));
         } else {
             showAlert("No patron selected.");
-        }
-    }
-
-    private void borrowBook() {
-        Book selectedBook = bookTableView.getSelectionModel().getSelectedItem();
-        Patron selectedPatron = patronTableView.getSelectionModel().getSelectedItem();
-        if (selectedBook != null && selectedPatron != null && selectedBook.isAvailable()) {
-            Date dateBorrowed = new Date();
-            Date dateDue = new Date(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)); // Due in one week
-            Transaction newTransaction = new Transaction(
-                    selectedBook.getBookID(),
-                    selectedPatron.getPatronID(),
-                    dateBorrowed,
-                    dateDue
-            );
-            transactionDAO.addTransaction(newTransaction);
-            selectedBook.setAvailable(false);
-            bookListManager.updateBookAvailability(selectedBook.getBookID(), false);
-            bookTableView.refresh();
-            transactionTableView.setItems(FXCollections.observableArrayList(transactionDAO.getAllTransactions()));
-        } else {
-            showAlert("Please select an available book and a patron.");
-        }
-    }
-
-    private void returnBook() {
-        Transaction selectedTransaction = transactionTableView.getSelectionModel().getSelectedItem();
-        if (selectedTransaction != null && selectedTransaction.getDateReturned() == null) {
-            selectedTransaction.setDateReturned(new Date());
-            transactionDAO.updateTransaction(selectedTransaction);
-            bookListManager.updateBookAvailability(selectedTransaction.getBookID(), true);
-            bookTableView.refresh();
-            transactionTableView.setItems(FXCollections.observableArrayList(transactionDAO.getAllTransactions()));
-        } else {
-            showAlert("No valid transaction selected.");
         }
     }
 
