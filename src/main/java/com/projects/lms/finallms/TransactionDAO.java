@@ -46,8 +46,9 @@ public class TransactionDAO {
     // Method to retrieve all transactions from the database
     public List<Transaction> getAllTransactions() {
         List<Transaction> transactions = new ArrayList<>();
-        String sql = "SELECT t.TransactionID, t.BookID, p.Name AS PatronName, t.DateBorrowed, t.DateDue, t.DateReturned " +
+        String sql = "SELECT t.TransactionID, t.BookID, b.Title AS BookTitle, p.Name AS PatronName, t.DateBorrowed, t.DateDue, t.DateReturned " +
                 "FROM Transactions t " +
+                "JOIN Books b ON t.BookID = b.BookID " +
                 "JOIN Patrons p ON t.PatronID = p.PatronID";
         try (Connection conn = JDBCUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -56,6 +57,7 @@ public class TransactionDAO {
                 Transaction transaction = new Transaction(
                         rs.getInt("TransactionID"),
                         rs.getInt("BookID"),
+                        rs.getString("BookTitle"),
                         rs.getString("PatronName"),
                         rs.getDate("DateBorrowed"),
                         rs.getDate("DateDue"),
