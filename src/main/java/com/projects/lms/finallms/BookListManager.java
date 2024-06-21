@@ -1,14 +1,13 @@
 package com.projects.lms.finallms;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 public class BookListManager {
-    private List<Book> books;
+    private LinkedList<Book> books;
     private BookDAO bookDAO;
 
     public BookListManager() {
-        this.books = new ArrayList<>();
+        this.books = new LinkedList<>();
         this.bookDAO = new BookDAO();
         loadBooks();  // Initialize the book list by loading from the database
     }
@@ -40,7 +39,7 @@ public class BookListManager {
     }
 
     // Getter for the list of books
-    public List<Book> getBooks() {
+    public LinkedList<Book> getBooks() {
         return books;
     }
 }

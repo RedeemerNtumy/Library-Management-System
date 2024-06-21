@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class TransactionDAO {
     // Method to add a transaction to the database
@@ -35,17 +37,18 @@ public class TransactionDAO {
         String sql = "UPDATE Transactions SET DateReturned = ? WHERE TransactionID = ?";
         try (Connection conn = JDBCUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setDate(1, new java.sql.Date(transaction.getDateReturned().getTime()));
+            pstmt.setDate(1, transaction.getDateReturned());
             pstmt.setInt(2, transaction.getTransactionID());
-            pstmt.executeUpdate();
+            int rowsUpdated = pstmt.executeUpdate();
+            System.out.println("Rows updated: " + rowsUpdated);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     // Method to retrieve all transactions from the database
-    public List<Transaction> getAllTransactions() {
-        List<Transaction> transactions = new ArrayList<>();
+    public Queue<Transaction> getAllTransactions() {
+        Queue<Transaction> transactions = new LinkedList<>();
         String sql = "SELECT t.TransactionID, t.BookID, b.Title AS BookTitle, p.Name AS PatronName, t.DateBorrowed, t.DateDue, t.DateReturned " +
                 "FROM Transactions t " +
                 "JOIN Books b ON t.BookID = b.BookID " +
@@ -70,4 +73,5 @@ public class TransactionDAO {
         }
         return transactions;
     }
+
 }

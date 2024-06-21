@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BookDAO {
@@ -53,8 +54,8 @@ public class BookDAO {
     }
 
 
-    public List<Book> getAllBooks() {
-        List<Book> books = new ArrayList<>();
+    public LinkedList<Book> getAllBooks() {
+        LinkedList<Book> books = new LinkedList<>();
         String sql = "SELECT * FROM Books";
         try (Connection conn = JDBCUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);

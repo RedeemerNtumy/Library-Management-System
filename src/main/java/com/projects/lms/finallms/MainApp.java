@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Queue;
 
 public class MainApp extends Application {
     private TableView<Book> bookTableView = new TableView<>();
@@ -160,12 +161,29 @@ public class MainApp extends Application {
     private void removeBook() {
         Book selectedBook = bookTableView.getSelectionModel().getSelectedItem();
         if (selectedBook != null) {
-            bookListManager.removeBook(selectedBook.getBookID());
-            bookTableView.setItems(FXCollections.observableArrayList(bookListManager.getBooks()));
+            boolean hasTransactions = checkIfBookHasTransactions(selectedBook.getBookID());
+            if (hasTransactions) {
+                showAlert("Cannot delete the book. There are transactions associated with this book.");
+            } else {
+                bookListManager.removeBook(selectedBook.getBookID());
+                bookTableView.setItems(FXCollections.observableArrayList(bookListManager.getBooks()));
+            }
         } else {
             showAlert("No book selected.");
         }
     }
+
+    // Helper method to check if a book has transactions
+    private boolean checkIfBookHasTransactions(int bookID) {
+        Queue<Transaction> transactions = transactionDAO.getAllTransactions();
+        for (Transaction transaction : transactions) {
+            if (transaction.getBookID() == bookID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private void showBorrowBookForm() {
         Book selectedBook = bookTableView.getSelectionModel().getSelectedItem();
@@ -210,11 +228,13 @@ public class MainApp extends Application {
     private void returnBook() {
         Book selectedBook = bookTableView.getSelectionModel().getSelectedItem();
         if (selectedBook != null && !selectedBook.isAvailable()) {
-            List<Transaction> transactions = transactionDAO.getAllTransactions();
-            for (Transaction transaction : transactions) {
+            Queue<Transaction> transactions = transactionDAO.getAllTransactions();
+            while (!transactions.isEmpty()) {
+                Transaction transaction = transactions.poll();
                 if (transaction.getBookID() == selectedBook.getBookID() && transaction.getDateReturned() == null) {
                     transaction.setDateReturned(new java.sql.Date(System.currentTimeMillis()));
                     transactionDAO.updateTransaction(transaction);
+                    System.out.println(transaction.getDateReturned());
                     bookListManager.updateBookAvailability(selectedBook.getBookID(), true);
                     bookTableView.refresh();
                     transactionTableView.setItems(FXCollections.observableArrayList(transactionDAO.getAllTransactions()));
@@ -225,6 +245,7 @@ public class MainApp extends Application {
             showAlert("No borrowed book selected.");
         }
     }
+
 
     private void addPatron(String name, String email) {
         if (name.isEmpty() || email.isEmpty()) {
@@ -239,12 +260,31 @@ public class MainApp extends Application {
     private void removePatron() {
         Patron selectedPatron = patronTableView.getSelectionModel().getSelectedItem();
         if (selectedPatron != null) {
-            patronListManager.removePatron(selectedPatron.getPatronID());
-            patronTableView.setItems(FXCollections.observableArrayList(patronListManager.getPatrons()));
+            boolean hasTransactions = checkIfPatronHasTransactions(selectedPatron.getPatronID());
+            if (hasTransactions) {
+                showAlert("Cannot delete the patron. There are transactions associated with this patron.");
+            } else {
+                patronListManager.removePatron(selectedPatron.getPatronID());
+                patronTableView.setItems(FXCollections.observableArrayList(patronListManager.getPatrons()));
+            }
         } else {
             showAlert("No patron selected.");
         }
     }
+
+    // Helper method to check if a patron has transactions
+    private boolean checkIfPatronHasTransactions(int patronID) {
+        Queue<Transaction> transactions = transactionDAO.getAllTransactions();
+        for (Transaction transaction : transactions) {
+            if (transaction.getPatronID() == patronID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
 
     private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
