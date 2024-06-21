@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookDAO {
-    // Method to add a book to the database
     public void addBook(Book book) {
         String sql = "INSERT INTO Books (Title, Author, ISBN, Available) VALUES (?, ?, ?, ?)";
         try (Connection conn = JDBCUtil.getConnection();
@@ -30,7 +29,6 @@ public class BookDAO {
         }
     }
 
-    // Method to remove a book from the database
     public void removeBook(int bookID) {
         String sql = "DELETE FROM Books WHERE BookID = ?";
         try (Connection conn = JDBCUtil.getConnection();
@@ -42,7 +40,6 @@ public class BookDAO {
         }
     }
 
-    // Method to update book availability in the database
     public void updateBookAvailability(int bookID, boolean isAvailable) {
         String sql = "UPDATE Books SET Available = ? WHERE BookID = ?";
         try (Connection conn = JDBCUtil.getConnection();
@@ -55,7 +52,7 @@ public class BookDAO {
         }
     }
 
-    // Method to retrieve all books from the database
+
     public List<Book> getAllBooks() {
         List<Book> books = new ArrayList<>();
         String sql = "SELECT * FROM Books";

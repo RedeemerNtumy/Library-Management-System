@@ -30,11 +30,9 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Library Management System");
 
-        // Tabs setup
         TabPane tabPane = new TabPane();
         tabPane.setStyle("-fx-background-color: #F6E6CB;");
 
-        // Books Tab
         VBox booksLayout = new VBox(10);
         booksLayout.setPadding(new Insets(30));
         booksLayout.setAlignment(Pos.CENTER);
@@ -63,7 +61,6 @@ public class MainApp extends Application {
         Tab booksTab = new Tab("Books", booksLayout);
         booksTab.setClosable(false);
 
-        // Patrons Tab
         VBox patronsLayout = new VBox(10);
         patronsLayout.setPadding(new Insets(30));
         patronsLayout.setAlignment(Pos.CENTER);
@@ -85,7 +82,6 @@ public class MainApp extends Application {
         Tab patronsTab = new Tab("Patrons", patronsLayout);
         patronsTab.setClosable(false);
 
-        // Transactions Tab
         VBox transactionsLayout = new VBox(10);
         transactionsLayout.setPadding(new Insets(30));
         transactionsLayout.setAlignment(Pos.CENTER);

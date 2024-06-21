@@ -13,13 +13,11 @@ public class BookListManager {
         loadBooks();  // Initialize the book list by loading from the database
     }
 
-    // Add a book to the list and the database
     public void addBook(Book book) {
-        bookDAO.addBook(book);  // Add book to the database and retrieve generated ID
-        books.add(book);        // Add book to the local list
+        bookDAO.addBook(book);
+        books.add(book);
     }
 
-    // Remove a book from the list and the database
     public void removeBook(int bookID) {
         bookDAO.removeBook(bookID);  // Remove book from the database
         books.removeIf(b -> b.getBookID() == bookID);  // Remove book from the local list
