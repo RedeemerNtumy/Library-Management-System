@@ -1,4 +1,4 @@
-package com.projects.lms.finallms;
+package com.projects.lms.finallms.models;
 
 public class User {
     private String name;

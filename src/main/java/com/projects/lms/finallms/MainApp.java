@@ -1,5 +1,11 @@
 package com.projects.lms.finallms;
 
+import com.projects.lms.finallms.dao.TransactionDAO;
+import com.projects.lms.finallms.listmanagers.BookListManager;
+import com.projects.lms.finallms.listmanagers.PatronListManager;
+import com.projects.lms.finallms.models.Book;
+import com.projects.lms.finallms.models.Patron;
+import com.projects.lms.finallms.models.Transaction;
 import javafx.application.Application;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -16,7 +22,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Queue;
 
 public class MainApp extends Application {
@@ -202,12 +207,17 @@ public class MainApp extends Application {
         ComboBox<Patron> patronComboBox = new ComboBox<>(FXCollections.observableArrayList(patronListManager.getPatrons()));
         Button saveButton = new Button("Save");
         saveButton.setOnAction(e -> {
+            if (java.sql.Date.valueOf(returnDatePicker.getValue()).before(java.sql.Date.valueOf(issueDatePicker.getValue()))) {
+                showAlert("Return date cannot be before the issue date.");
+                return;
+            }
             if (issueDatePicker.getValue() != null && returnDatePicker.getValue() != null && patronComboBox.getValue() != null) {
                 borrowBook(selectedBook, patronComboBox.getValue(), java.sql.Date.valueOf(issueDatePicker.getValue()), java.sql.Date.valueOf(returnDatePicker.getValue()));
                 borrowStage.close();
             } else {
                 showAlert("Please fill all fields.");
             }
+
         });
 
         layout.getChildren().addAll(new Label("Issue Date:"), issueDatePicker, new Label("Return Date:"), returnDatePicker, new Label("Select Patron:"), patronComboBox, saveButton);
@@ -250,6 +260,10 @@ public class MainApp extends Application {
     private void addPatron(String name, String email) {
         if (name.isEmpty() || email.isEmpty()) {
             showAlert("Please fill all fields.");
+            return;
+        }
+        if (patronListManager.getPatrons().stream().anyMatch(patron -> patron.getEmail().equals(email))) {
+            showAlert("This user has already been registered.");
             return;
         }
         Patron newPatron = new Patron(name, email);

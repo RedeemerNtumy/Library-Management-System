@@ -1,4 +1,4 @@
-package com.projects.lms.finallms;
+package com.projects.lms.finallms.models;
 
 import java.sql.Date;
 

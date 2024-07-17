@@ -1,4 +1,4 @@
-package com.projects.lms.finallms;
+package com.projects.lms.finallms.models;
 
 public class Book {
     private int bookID; // Auto-incremented by the database

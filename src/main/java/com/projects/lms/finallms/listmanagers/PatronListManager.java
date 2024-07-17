@@ -1,4 +1,7 @@
-package com.projects.lms.finallms;
+package com.projects.lms.finallms.listmanagers;
+
+import com.projects.lms.finallms.dao.PatronDAO;
+import com.projects.lms.finallms.models.Patron;
 
 import java.util.ArrayList;
 import java.util.List;

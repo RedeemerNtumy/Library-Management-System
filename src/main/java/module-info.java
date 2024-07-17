@@ -13,4 +13,10 @@ module com.projects.lms.finallms {
 
     opens com.projects.lms.finallms to javafx.fxml;
     exports com.projects.lms.finallms;
+    exports com.projects.lms.finallms.dao;
+    opens com.projects.lms.finallms.dao to javafx.fxml;
+    exports com.projects.lms.finallms.models;
+    opens com.projects.lms.finallms.models to javafx.fxml;
+    exports com.projects.lms.finallms.listmanagers;
+    opens com.projects.lms.finallms.listmanagers to javafx.fxml;
 }

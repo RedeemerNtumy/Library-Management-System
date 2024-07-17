@@ -1,4 +1,4 @@
-package com.projects.lms.finallms;
+package com.projects.lms.finallms.models;
 
 public class Patron extends User {
     private int patronID;  // Auto-incremented by the database

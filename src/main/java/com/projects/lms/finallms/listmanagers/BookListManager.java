@@ -1,4 +1,7 @@
-package com.projects.lms.finallms;
+package com.projects.lms.finallms.listmanagers;
+
+import com.projects.lms.finallms.dao.BookDAO;
+import com.projects.lms.finallms.models.Book;
 
 import java.util.LinkedList;
 
