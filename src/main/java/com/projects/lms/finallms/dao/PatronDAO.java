@@ -1,4 +1,7 @@
-package com.projects.lms.finallms;
+package com.projects.lms.finallms.dao;
+
+import com.projects.lms.finallms.JDBCUtil;
+import com.projects.lms.finallms.models.Patron;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,12 +1,13 @@
-package com.projects.lms.finallms;
+package com.projects.lms.finallms.dao;
+
+import com.projects.lms.finallms.models.Book;
+import com.projects.lms.finallms.JDBCUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 public class BookDAO {
     public void addBook(Book book) {

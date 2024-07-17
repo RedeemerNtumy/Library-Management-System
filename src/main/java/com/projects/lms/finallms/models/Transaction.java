@@ -54,4 +54,7 @@ public class Transaction {
     public void setDateReturned(Date dateReturned) {
         this.dateReturned = dateReturned;
     }
+
+
+
 }
