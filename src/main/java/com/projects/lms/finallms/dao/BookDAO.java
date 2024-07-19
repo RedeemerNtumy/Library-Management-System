@@ -41,6 +41,40 @@ public class BookDAO {
             e.printStackTrace();
         }
     }
+    public Book getLastBook() {
+        String sql = "SELECT * FROM Books ORDER BY BookID DESC LIMIT 1";
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                Book book = new Book(
+                        rs.getString("Title"),
+                        rs.getString("Author"),
+                        rs.getString("ISBN")
+                );
+                book.setBookID(rs.getInt("BookID"));
+                book.setAvailable(rs.getBoolean("Available"));
+                return book;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // or throw an exception if preferred
+    }
+
+    public boolean bookExistsByISBN(String isbn) {
+        String sql = "SELECT 1 FROM Books WHERE ISBN = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, isbn);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next(); // Returns true if there is at least one result
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // Return false if an exception occurs or no book is found
+    }
 
     public void updateBookAvailability(int bookID, boolean isAvailable) {
         String sql = "UPDATE Books SET Available = ? WHERE BookID = ?";
@@ -53,6 +87,12 @@ public class BookDAO {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public String toString() {
+        return toString();
+    }
+
 
 
     public LinkedList<Book> getAllBooks() {
