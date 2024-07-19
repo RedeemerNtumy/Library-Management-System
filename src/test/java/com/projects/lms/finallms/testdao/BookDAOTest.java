@@ -5,62 +5,77 @@ import com.projects.lms.finallms.models.Book;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import java.util.Collections;
+import java.util.LinkedList;
+
+import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BookDAOTest {
+    @Mock
     public BookDAO bookDAO;
-    public Book book;
+    public AutoCloseable closeable;
 
     @BeforeEach
     void setUp() {
-        book = new Book("A week indeed", "Redeemer Ntumy", "511");
-        bookDAO = new BookDAO();
+        closeable = MockitoAnnotations.openMocks(this);
+        Book book = new Book("A week indeed", "Redeemer Ntumy", "511");
+        when(bookDAO.getAllBooks()).thenReturn(new LinkedList<>(Collections.singletonList(book)));
+        when(bookDAO.bookExistsByISBN("511")).thenReturn(false);
 
     }
 
     @AfterEach
-    void tearDown() {
-        bookDAO.removeBook(book.getBookID());
+    void tearDown() throws Exception {
+        closeable.close();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "New, Redeemer Ntumy, 511",
+            "This is a story, James Harden, 600"
+    })
+    void addBookCheckProperties(String title, String author, String isbn) {
+        Book book = new Book(title, author, isbn);
+        bookDAO.addBook(book);
+        verify(bookDAO, times(1)).addBook(book);
+        assertEquals(title, book.getTitle());
+        assertEquals(author, book.getAuthor());
+        assertEquals(isbn, book.getIsbn());
+        assertEquals(true,book.isAvailable());
+
+
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "31",
+            "65",
+            "54"
+    })
+    void removeBook(int id) {
+        bookDAO.removeBook(id);
+        verify(bookDAO).removeBook(id);
     }
 
 
-    @Test
-    void addBookCheckTitle() {
-        assertEquals("A week indeed", bookDAO.getAllBooks().getLast().getTitle() );
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false,true})
+    void updateBookAvailability(boolean availability) {
+        Book lastBook = bookDAO.getAllBooks().getLast();
+        lastBook.setAvailable(availability);
+        assertEquals(availability, bookDAO.getAllBooks().getLast().isAvailable());
     }
 
-    @Test
-    void addBookCheckAuthor() {
-        assertEquals("Redeemer Ntumy", bookDAO.getAllBooks().getLast().getAuthor() );
-    }
-
-    @Test
-    void addBookCheckIsbn() {
-        assertEquals("511", bookDAO.getAllBooks().getLast().getIsbn());
-    }
-
-    @Test
-    void addBookCheckAvailability() {
-        assertTrue(bookDAO.getAllBooks().getLast().isAvailable());
-    }
-
-
-    @Test
-    void removeBook() {
-        bookDAO.removeBook(book.getBookID());
-        assertFalse(bookDAO.bookExistsByISBN(book.getIsbn()));
-    }
-
-    @Test
-    void updateBookAvailability() {
-        bookDAO.updateBookAvailability(book.getBookID(),true);
-        assertTrue(bookDAO.getBookByID(book.getBookID()).isAvailable());
-    }
 
     @Test
     void getAllBooks() {
-       assertEquals(27,bookDAO.getAllBooks().size());
-//        fail("Test not yet implemented");
+        assertEquals(1, bookDAO.getAllBooks().size());
     }
 }

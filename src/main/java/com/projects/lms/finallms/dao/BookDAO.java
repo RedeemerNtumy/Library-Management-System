@@ -41,26 +41,6 @@ public class BookDAO {
             e.printStackTrace();
         }
     }
-//    public Book getLastBook() {
-//        String sql = "SELECT * FROM Books ORDER BY BookID DESC LIMIT 1";
-//        try (Connection conn = JDBCUtil.getConnection();
-//             PreparedStatement pstmt = conn.prepareStatement(sql);
-//             ResultSet rs = pstmt.executeQuery()) {
-//            if (rs.next()) {
-//                Book book = new Book(
-//                        rs.getString("Title"),
-//                        rs.getString("Author"),
-//                        rs.getString("ISBN")
-//                );
-//                book.setBookID(rs.getInt("BookID"));
-//                book.setAvailable(rs.getBoolean("Available"));
-//                return book;
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return null; // or throw an exception if preferred
-//    }
 
     public Book getBookByID(int bookID) {
         String sql = "SELECT * FROM Books WHERE BookID = ?";
@@ -116,7 +96,6 @@ public class BookDAO {
     public String toString() {
         return toString();
     }
-
 
 
     public LinkedList<Book> getAllBooks() {
