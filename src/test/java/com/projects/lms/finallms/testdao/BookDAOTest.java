@@ -12,42 +12,37 @@ class BookDAOTest {
     public BookDAO bookDAO;
     public Book book;
 
-
     @BeforeEach
     void setUp() {
         book = new Book("A week indeed", "Redeemer Ntumy", "511");
         bookDAO = new BookDAO();
-        bookDAO.addBook(book);
 
-//        fail("Test not yet implemented");
     }
 
     @AfterEach
     void tearDown() {
         bookDAO.removeBook(book.getBookID());
-//        fail("Test not yet implemented");
     }
-
 
 
     @Test
     void addBookCheckTitle() {
-        assertEquals("A week indeed", bookDAO.getLastBook().getTitle() );
+        assertEquals("A week indeed", bookDAO.getAllBooks().getLast().getTitle() );
     }
 
     @Test
     void addBookCheckAuthor() {
-        assertEquals("Redeemer Ntumy", bookDAO.getLastBook().getAuthor() );
+        assertEquals("Redeemer Ntumy", bookDAO.getAllBooks().getLast().getAuthor() );
     }
 
     @Test
     void addBookCheckIsbn() {
-        assertEquals("511", bookDAO.getLastBook().getIsbn());
+        assertEquals("511", bookDAO.getAllBooks().getLast().getIsbn());
     }
 
     @Test
     void addBookCheckAvailability() {
-        assertTrue(bookDAO.getLastBook().isAvailable());
+        assertTrue(bookDAO.getAllBooks().getLast().isAvailable());
     }
 
 
@@ -59,11 +54,13 @@ class BookDAOTest {
 
     @Test
     void updateBookAvailability() {
-//        fail("Test not yet implemented");
+        bookDAO.updateBookAvailability(book.getBookID(),true);
+        assertTrue(bookDAO.getBookByID(book.getBookID()).isAvailable());
     }
 
     @Test
     void getAllBooks() {
+       assertEquals(27,bookDAO.getAllBooks().size());
 //        fail("Test not yet implemented");
     }
 }
