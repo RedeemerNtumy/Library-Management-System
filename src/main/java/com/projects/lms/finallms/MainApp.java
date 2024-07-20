@@ -1,6 +1,5 @@
 package com.projects.lms.finallms;
 
-import com.projects.lms.finallms.dao.TransactionDAO;
 import com.projects.lms.finallms.listmanagers.BookListManager;
 import com.projects.lms.finallms.listmanagers.PatronListManager;
 import com.projects.lms.finallms.listmanagers.TransactionListManager;
@@ -24,6 +23,7 @@ import javafx.stage.Stage;
 
 import java.util.Date;
 import java.util.Queue;
+
 
 public class MainApp extends Application {
     private TableView<Book> bookTableView = new TableView<>();
