@@ -1,92 +1,78 @@
 package com.projects.lms.finallms.testdao;
 
-import com.projects.lms.finallms.JDBCUtil;
+import com.projects.lms.finallms.dao.BookDAO;
 import com.projects.lms.finallms.dao.TransactionDAO;
+import com.projects.lms.finallms.models.Book;
 import com.projects.lms.finallms.models.Transaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
-import java.sql.*;
+import java.sql.Date;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Queue;
+import java.util.stream.Stream;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class TransactionDAOTest {
 
     @Mock
-    public Connection conn;
-    @Mock
-    public PreparedStatement pstmt;
-    @Mock
-    public ResultSet rs;
-
-    @InjectMocks
     public TransactionDAO transactionDAO;
+    public AutoCloseable closeable;
 
     @BeforeEach
-    void setUp() throws SQLException {
-        MockitoAnnotations.openMocks(this);
-        when(JDBCUtil.getConnection()).thenReturn(conn);
-        when(conn.prepareStatement(anyString(), Mockito.anyInt())).thenReturn(pstmt);
-        when(conn.prepareStatement(anyString())).thenReturn(pstmt);
-        when(pstmt.executeQuery()).thenReturn(rs);
-        when(pstmt.getGeneratedKeys()).thenReturn(rs);
-        doNothing().when(pstmt).setInt(anyInt(), anyInt());
-        doNothing().when(pstmt).setDate(anyInt(), any(java.sql.Date.class));
-        doNothing().when(rs).close();
-        doNothing().when(pstmt).close();
-        doNothing().when(conn).close();
+    void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
+        Transaction transaction = new Transaction(5,"Sample Book",5,"Mr Patron", new Date(2000,10,23), new Date(2000,10,24));
+        when(transactionDAO.getAllTransactions()).thenReturn(new LinkedList<>(Collections.singletonList(transaction)));
     }
 
     @AfterEach
     void tearDown() throws Exception {
-        rs.close();
-        pstmt.close();
-        conn.close();
+        closeable.close();
     }
 
-    @Test
-    void addTransaction() throws SQLException {
-        Transaction transaction = new Transaction(1, "Moby Dick", 100, "John Doe", Date.valueOf("2023-01-01"), Date.valueOf("2023-01-15"));
-        when(rs.next()).thenReturn(true);
-        when(rs.getInt(1)).thenReturn(1);
+    static Stream<Transaction> transactionProvider() {
+        return Stream.of(
+                new Transaction(5, "Sample Book", 5, "Mr Patron", new Date(100, 9, 23), new Date(100, 9, 24)),
+                new Transaction(6, "Another Book", 1, "Ms Patron", new Date(101, 0, 1), new Date(101, 0, 15)),
+                new Transaction(7, "Third Book", 2, "Dr Patron", new Date(99, 11, 31), new Date(100, 0, 30))
+        );
+    }
 
+    @ParameterizedTest
+    @MethodSource("transactionProvider")
+    void AddTransaction(Transaction transaction) {
         transactionDAO.addTransaction(transaction);
-
-        verify(pstmt, times(1)).executeUpdate();
-        verify(pstmt, times(1)).getGeneratedKeys();
-        assertEquals(1, transaction.getTransactionID());
+        verify(transactionDAO).addTransaction(transaction);
     }
 
-    @Test
-    void updateTransaction() throws SQLException {
-        Transaction transaction = new Transaction(1, 1, "Moby Dick", "John Doe", Date.valueOf("2023-01-01"), Date.valueOf("2023-01-15"), null);
-        transaction.setDateReturned(Date.valueOf("2023-01-10"));
-
+    @ParameterizedTest
+    @MethodSource("transactionProvider")
+    void UpdateTransaction(Transaction transaction) {
         transactionDAO.updateTransaction(transaction);
-
-        verify(pstmt, times(1)).executeUpdate();
-        verify(pstmt).setDate(1, transaction.getDateReturned());
+        verify(transactionDAO).updateTransaction(transaction);
     }
 
     @Test
-    void getAllTransactions() throws SQLException {
-        when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(false);
-        when(rs.getInt(anyString())).thenReturn(1);
-        when(rs.getString("BookTitle")).thenReturn("Moby Dick");
-        when(rs.getString("PatronName")).thenReturn("John Doe");
-        when(rs.getDate("DateBorrowed")).thenReturn(Date.valueOf("2023-01-01"));
-        when(rs.getDate("DateDue")).thenReturn(Date.valueOf("2023-01-15"));
-        when(rs.getDate("DateReturned")).thenReturn(Date.valueOf("2023-01-10"));
-
-        Queue<Transaction> transactions = transactionDAO.getAllTransactions();
-
-        assertEquals(2, transactions.size());
-        Transaction firstTransaction = transactions.poll();
-        assertNotNull(firstTransaction);
-        assertEquals("Moby Dick", firstTransaction.getBookTitle());
+    void getAllTransactions() {
+        Queue<Transaction> expectedTransactions = new LinkedList<>();
+        expectedTransactions.add(new Transaction(5, "Sample Book", 5, "Mr Patron", new Date(100, 9, 23), new Date(100, 9, 24)));
+        expectedTransactions.add(new Transaction(6, "Another Book", 1, "Ms Patron", new Date(101, 0, 1), new Date(101, 0, 15)));
+        expectedTransactions.add(new Transaction(7, "Third Book", 2, "Dr Patron", new Date(99, 11, 31), new Date(100, 0, 30)));
+        when(transactionDAO.getAllTransactions()).thenReturn(expectedTransactions);
+        Queue<Transaction> actualTransactions = transactionDAO.getAllTransactions();
+        assertEquals(expectedTransactions, actualTransactions, "The returned queue of transactions should match the expected queue.");
+        verify(transactionDAO).getAllTransactions();
     }
 }

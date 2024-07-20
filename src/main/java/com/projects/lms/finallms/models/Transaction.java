@@ -31,6 +31,17 @@ public class Transaction {
         this.dateDue = dateDue;
         this.dateReturned = dateReturned;
     }
+
+    public Transaction(int i, String date, Object o) {
+        this.transactionID = i;
+        this.dateBorrowed = (Date) o;
+        this.dateDue = (Date) o;
+    }
+
+    public Transaction(){
+
+    }
+
     // Getters and Setters
     public int getTransactionID() {return transactionID;}
     public void setTransactionID(int transactionID) {this.transactionID = transactionID;}

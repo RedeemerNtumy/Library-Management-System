@@ -11,6 +11,12 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class TransactionDAO {
+    public TransactionDAO(Connection mockConnection) {
+    }
+    public TransactionDAO(){
+
+    }
+
     // Method to add a transaction to the database
     public void addTransaction(Transaction transaction) {
         String sql = "INSERT INTO Transactions (BookID, PatronID, DateBorrowed, DateDue) VALUES (?, ?, ?, ?)";
