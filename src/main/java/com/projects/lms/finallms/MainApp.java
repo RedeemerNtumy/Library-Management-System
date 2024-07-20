@@ -3,6 +3,7 @@ package com.projects.lms.finallms;
 import com.projects.lms.finallms.dao.TransactionDAO;
 import com.projects.lms.finallms.listmanagers.BookListManager;
 import com.projects.lms.finallms.listmanagers.PatronListManager;
+import com.projects.lms.finallms.listmanagers.TransactionListManager;
 import com.projects.lms.finallms.models.Book;
 import com.projects.lms.finallms.models.Patron;
 import com.projects.lms.finallms.models.Transaction;
@@ -30,7 +31,7 @@ public class MainApp extends Application {
     private TableView<Transaction> transactionTableView = new TableView<>();
     private BookListManager bookListManager = new BookListManager();
     private PatronListManager patronListManager = new PatronListManager();
-    private TransactionDAO transactionDAO = new TransactionDAO();
+    private TransactionListManager transactionListManager = new TransactionListManager();
 
     @Override
     public void start(Stage primaryStage) {
@@ -143,7 +144,8 @@ public class MainApp extends Application {
         TableColumn<Transaction, Date> dateReturnedColumn = new TableColumn<>("Date Returned");
         dateReturnedColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getDateReturned()));
         transactionTableView.getColumns().addAll(bookIdColumn, patronNameColumn, bookTitleColumn, dateBorrowedColumn, dateDueColumn, dateReturnedColumn);
-        transactionTableView.setItems(FXCollections.observableArrayList(transactionDAO.getAllTransactions()));
+        transactionTableView.setItems(FXCollections.observableArrayList(transactionListManager.loadTransactions()));
+
 
         transactionTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
@@ -180,7 +182,7 @@ public class MainApp extends Application {
 
     // Helper method to check if a book has transactions
     private boolean checkIfBookHasTransactions(int bookID) {
-        Queue<Transaction> transactions = transactionDAO.getAllTransactions();
+        Queue<Transaction> transactions = transactionListManager.loadTransactions();
         for (Transaction transaction : transactions) {
             if (transaction.getBookID() == bookID) {
                 return true;
@@ -228,26 +230,26 @@ public class MainApp extends Application {
 
     private void borrowBook(Book book, Patron patron, java.sql.Date issueDate, java.sql.Date returnDate) {
         Transaction newTransaction = new Transaction(book.getBookID(), book.getTitle(), patron.getPatronID(), patron.getName(), issueDate, returnDate);
-        transactionDAO.addTransaction(newTransaction);
+        transactionListManager.addTransaction(newTransaction);
         book.setAvailable(false);
         bookListManager.updateBookAvailability(book.getBookID(), false);
         bookTableView.refresh();
-        transactionTableView.setItems(FXCollections.observableArrayList(transactionDAO.getAllTransactions()));
+        transactionTableView.setItems(FXCollections.observableArrayList(transactionListManager.loadTransactions()));
     }
 
     private void returnBook() {
         Book selectedBook = bookTableView.getSelectionModel().getSelectedItem();
         if (selectedBook != null && !selectedBook.isAvailable()) {
-            Queue<Transaction> transactions = transactionDAO.getAllTransactions();
+            Queue<Transaction> transactions = transactionListManager.loadTransactions();
             while (!transactions.isEmpty()) {
                 Transaction transaction = transactions.poll();
                 if (transaction.getBookID() == selectedBook.getBookID() && transaction.getDateReturned() == null) {
                     transaction.setDateReturned(new java.sql.Date(System.currentTimeMillis()));
-                    transactionDAO.updateTransaction(transaction);
+                    transactionListManager.updateTransaction(transaction);
                     System.out.println(transaction.getDateReturned());
                     bookListManager.updateBookAvailability(selectedBook.getBookID(), true);
                     bookTableView.refresh();
-                    transactionTableView.setItems(FXCollections.observableArrayList(transactionDAO.getAllTransactions()));
+                    transactionTableView.setItems(FXCollections.observableArrayList(transactionListManager.loadTransactions()));
                     break;
                 }
             }
@@ -288,7 +290,7 @@ public class MainApp extends Application {
 
     // Helper method to check if a patron has transactions
     private boolean checkIfPatronHasTransactions(int patronID) {
-        Queue<Transaction> transactions = transactionDAO.getAllTransactions();
+        Queue<Transaction> transactions = transactionListManager.loadTransactions();
         for (Transaction transaction : transactions) {
             if (transaction.getPatronID() == patronID) {
                 return true;
