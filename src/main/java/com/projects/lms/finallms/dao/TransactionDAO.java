@@ -53,6 +53,19 @@ public class TransactionDAO {
         }
     }
 
+    // Method to remove all transactions from the database
+    public void removeAllTransactions() {
+        String sql = "DELETE FROM Transactions";  // Assuming the table is named 'Transactions'
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            int affectedRows = pstmt.executeUpdate();
+            System.out.println(affectedRows + " transactions removed.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     // Method to retrieve all transactions from the database
     public Queue<Transaction> getAllTransactions() {
         Queue<Transaction> transactions = new LinkedList<>();
@@ -80,5 +93,7 @@ public class TransactionDAO {
         }
         return transactions;
     }
+
+
 
 }

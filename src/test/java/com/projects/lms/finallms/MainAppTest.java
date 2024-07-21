@@ -1,5 +1,8 @@
 package com.projects.lms.finallms;
 
+import com.projects.lms.finallms.dao.BookDAO;
+import com.projects.lms.finallms.dao.PatronDAO;
+import com.projects.lms.finallms.dao.TransactionDAO;
 import com.projects.lms.finallms.models.Book;
 import com.projects.lms.finallms.models.Patron;
 import com.projects.lms.finallms.models.Transaction;
@@ -44,7 +47,19 @@ public class MainAppTest {
         // Remove the book
         robot.clickOn("New Titles");  // Click on the row containing the book
         robot.clickOn("#removeBookButton");
+
+        TableView<Patron> patronTable = robot.lookup("#patronTableView").queryAs(TableView.class);
         assertEquals(1, bookTable.getItems().size(), "Book should be removed from the table.");
+        TransactionDAO transactionDAO = new TransactionDAO();
+        transactionDAO.removeAllTransactions();
+        TableView<Transaction> transactionTableView = robot.lookup("#transactionTableView").queryAs(TableView.class);
+        assertEquals(1, transactionTableView.getItems().size(), "Transaction should be removed from the table.");
+        BookDAO bookDAO = new BookDAO();
+        bookDAO.removeBook(bookTable.getItems().getLast().getBookID());
+        PatronDAO patronDAO = new PatronDAO();
+        patronDAO.removePatron(patronTable.getItems().getLast().getPatronID());
+        assertEquals(1, bookTable.getItems().size(), "Book should be removed from the table.");
+        assertEquals(1, patronTable.getItems().size(), "Patron should be removed from the table.");
     }
 
 
@@ -132,6 +147,7 @@ public class MainAppTest {
         // Select and remove the patron
         robot.clickOn("john.doe@example.com");
         robot.clickOn("#removePatronButton");
+
     }
 
 }
