@@ -73,6 +73,7 @@ public class MainApp extends Application {
         buttonLayout.getChildren().addAll(addBookButton, removeBookButton, borrowBookButton, returnBookButton);
         booksLayout.getChildren().addAll(new Label("Book Management"), bookTableView, titleField, authorField, isbnField, buttonLayout);
         Tab booksTab = new Tab("Books", booksLayout);
+        booksTab.setId("booksTab");
         booksTab.setClosable(false);
 
         VBox patronsLayout = new VBox(10);
@@ -98,6 +99,7 @@ public class MainApp extends Application {
         patronButtonLayout.getChildren().addAll(addPatronButton, removePatronButton);
         patronsLayout.getChildren().addAll(new Label("Patron Management"), patronTableView, nameField, emailField, patronButtonLayout);
         Tab patronsTab = new Tab("Patrons", patronsLayout);
+        patronsTab.setId("patronsTab");
         patronsTab.setClosable(false);
 
         VBox transactionsLayout = new VBox(10);
@@ -105,6 +107,7 @@ public class MainApp extends Application {
         transactionsLayout.setAlignment(Pos.CENTER);
         transactionsLayout.getChildren().addAll(new Label("Transaction History"), transactionTableView);
         Tab transactionsTab = new Tab("Transactions", transactionsLayout);
+        transactionsTab.setId("transactionsTab");
         transactionsTab.setClosable(false);
 
         tabPane.getTabs().addAll(booksTab, patronsTab, transactionsTab);
@@ -219,9 +222,13 @@ public class MainApp extends Application {
 
         layout.setPadding(new Insets(30));
         DatePicker issueDatePicker = new DatePicker();
+        issueDatePicker.setId("issueDatePicker");
         DatePicker returnDatePicker = new DatePicker();
+        returnDatePicker.setId("returnDatePicker");
         ComboBox<Patron> patronComboBox = new ComboBox<>(FXCollections.observableArrayList(patronListManager.getPatrons()));
+        patronComboBox.setId("patronComboBox");
         Button saveButton = new Button("Save");
+        saveButton.setId("saveButton");
         saveButton.setOnAction(e -> {
             if (java.sql.Date.valueOf(returnDatePicker.getValue()).before(java.sql.Date.valueOf(issueDatePicker.getValue()))) {
                 showAlert("Return date cannot be before the issue date.");
