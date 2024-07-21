@@ -8,7 +8,7 @@ import java.util.Queue;
 
 public class TransactionListManager {
     private Queue<Transaction> transactions;
-    private TransactionDAO transactionDAO;
+    public TransactionDAO transactionDAO;
 
     public TransactionListManager() {
         this.transactions = new LinkedList<>();

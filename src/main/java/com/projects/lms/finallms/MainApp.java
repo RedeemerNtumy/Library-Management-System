@@ -29,9 +29,9 @@ public class MainApp extends Application {
     private TableView<Book> bookTableView = new TableView<>();
     private TableView<Patron> patronTableView = new TableView<>();
     private TableView<Transaction> transactionTableView = new TableView<>();
-    private BookListManager bookListManager = new BookListManager();
-    private PatronListManager patronListManager = new PatronListManager();
-    private TransactionListManager transactionListManager = new TransactionListManager();
+    public BookListManager bookListManager = new BookListManager();
+    public PatronListManager patronListManager = new PatronListManager();
+    public TransactionListManager transactionListManager = new TransactionListManager();
 
     @Override
     public void start(Stage primaryStage) {
@@ -150,7 +150,7 @@ public class MainApp extends Application {
         transactionTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
-    private void addBook(String title, String author, String isbn) {
+    public void addBook(String title, String author, String isbn) {
         if (title.isEmpty() || author.isEmpty() || isbn.isEmpty()) {
             showAlert("Please fill all fields.");
             return;
@@ -228,7 +228,7 @@ public class MainApp extends Application {
         borrowStage.show();
     }
 
-    private void borrowBook(Book book, Patron patron, java.sql.Date issueDate, java.sql.Date returnDate) {
+    public void borrowBook(Book book, Patron patron, java.sql.Date issueDate, java.sql.Date returnDate) {
         Transaction newTransaction = new Transaction(book.getBookID(), book.getTitle(), patron.getPatronID(), patron.getName(), issueDate, returnDate);
         transactionListManager.addTransaction(newTransaction);
         book.setAvailable(false);
@@ -237,7 +237,7 @@ public class MainApp extends Application {
         transactionTableView.setItems(FXCollections.observableArrayList(transactionListManager.loadTransactions()));
     }
 
-    private void returnBook() {
+    public void returnBook() {
         Book selectedBook = bookTableView.getSelectionModel().getSelectedItem();
         if (selectedBook != null && !selectedBook.isAvailable()) {
             Queue<Transaction> transactions = transactionListManager.loadTransactions();
@@ -273,7 +273,7 @@ public class MainApp extends Application {
         patronTableView.setItems(FXCollections.observableArrayList(patronListManager.getPatrons()));
     }
 
-    private void removePatron() {
+    public void removePatron() {
         Patron selectedPatron = patronTableView.getSelectionModel().getSelectedItem();
         if (selectedPatron != null) {
             boolean hasTransactions = checkIfPatronHasTransactions(selectedPatron.getPatronID());

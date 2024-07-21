@@ -8,7 +8,7 @@ import java.util.List;
 
 public class PatronListManager {
     private List<Patron> patrons;
-    private PatronDAO patronDAO;
+    public PatronDAO patronDAO;
 
     public PatronListManager() {
         this.patrons = new ArrayList<>();

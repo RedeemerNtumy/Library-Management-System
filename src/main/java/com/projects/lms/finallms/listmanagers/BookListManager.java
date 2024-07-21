@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 public class BookListManager {
     private LinkedList<Book> books;
-    private BookDAO bookDAO;
+    public BookDAO bookDAO;
 
     public BookListManager() {
         this.books = new LinkedList<>();
