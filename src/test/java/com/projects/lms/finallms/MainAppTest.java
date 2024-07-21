@@ -31,7 +31,7 @@ public class MainAppTest {
         // Enter book details
         robot.clickOn("#titleField").write("Effective Java");
         robot.clickOn("#authorField").write("Joshua Bloch");
-        robot.clickOn("#isbnField").write("0321356683");
+        robot.clickOn("#isbnField").write("032135668");
         robot.clickOn("#addBookButton");
 
         // Verify addition
@@ -41,7 +41,6 @@ public class MainAppTest {
 
     @Test
     public void testRemoveBook(FxRobot robot) {
-        robot.sleep(10000);
         // Remove the book
         robot.clickOn("Effective Java");  // Click on the row containing the book
         robot.clickOn("#removeBookButton");
