@@ -17,8 +17,7 @@ import java.util.Queue;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class TransactionDAOTest {
 
@@ -59,6 +58,7 @@ class TransactionDAOTest {
         transactionDAO.updateTransaction(transaction);
         verify(transactionDAO).updateTransaction(transaction);
     }
+
 
     @Test
     void getAllTransactions() {
