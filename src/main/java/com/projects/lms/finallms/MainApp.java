@@ -26,9 +26,9 @@ import java.util.Queue;
 
 
 public class MainApp extends Application {
-    private TableView<Book> bookTableView = new TableView<>();
-    private TableView<Patron> patronTableView = new TableView<>();
-    private TableView<Transaction> transactionTableView = new TableView<>();
+    TableView<Book> bookTableView = new TableView<>();
+    TableView<Patron> patronTableView = new TableView<>();
+    TableView<Transaction> transactionTableView = new TableView<>();
     public BookListManager bookListManager = new BookListManager();
     public PatronListManager patronListManager = new PatronListManager();
     public TransactionListManager transactionListManager = new TransactionListManager();
@@ -46,22 +46,29 @@ public class MainApp extends Application {
 
         TextField titleField = new TextField();
         titleField.setPromptText("Title");
+        titleField.setId("titleField");
         TextField authorField = new TextField();
         authorField.setPromptText("Author");
+        authorField.setId("authorField");
         TextField isbnField = new TextField();
         isbnField.setPromptText("ISBN");
+        isbnField.setId("isbnField");
 
         HBox buttonLayout = new HBox(10);
         buttonLayout.setAlignment(Pos.CENTER);
 
         Button addBookButton = new Button("Add Book");
+        addBookButton.setId("addBookButton");
         addBookButton.setOnAction(e -> addBook(titleField.getText(), authorField.getText(), isbnField.getText()));
         Button removeBookButton = new Button("Remove Book");
         removeBookButton.setOnAction(e -> removeBook());
+        removeBookButton.setId("removeBookButton");
         Button borrowBookButton = new Button("Borrow Book");
+        borrowBookButton.setId("borrowBookButton");
         borrowBookButton.setOnAction(e -> showBorrowBookForm());
         Button returnBookButton = new Button("Return Book");
         returnBookButton.setOnAction(e -> returnBook());
+        returnBookButton.setId("returnBookButton");
 
         buttonLayout.getChildren().addAll(addBookButton, removeBookButton, borrowBookButton, returnBookButton);
         booksLayout.getChildren().addAll(new Label("Book Management"), bookTableView, titleField, authorField, isbnField, buttonLayout);
@@ -73,13 +80,17 @@ public class MainApp extends Application {
         patronsLayout.setAlignment(Pos.CENTER);
 
         TextField nameField = new TextField();
+        nameField.setId("nameField");
         nameField.setPromptText("Name");
         TextField emailField = new TextField();
+        emailField.setId("emailField");
         emailField.setPromptText("Email");
 
         Button addPatronButton = new Button("Add Patron");
+        addPatronButton.setId("addPatronButton");
         addPatronButton.setOnAction(e -> addPatron(nameField.getText(), emailField.getText()));
         Button removePatronButton = new Button("Remove Patron");
+        removePatronButton.setId("removePatronButton");
         removePatronButton.setOnAction(e -> removePatron());
 
         HBox patronButtonLayout = new HBox(10);
@@ -116,6 +127,7 @@ public class MainApp extends Application {
         TableColumn<Book, Boolean> availableColumn = new TableColumn<>("Available");
         availableColumn.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().isAvailable()));
         bookTableView.getColumns().addAll(titleColumn, authorColumn, isbnColumn, availableColumn);
+        bookTableView.setId("bookTableView");
         bookTableView.setItems(FXCollections.observableArrayList(bookListManager.getBooks()));
 
         bookTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -126,6 +138,7 @@ public class MainApp extends Application {
         TableColumn<Patron, String> emailColumn = new TableColumn<>("Email");
         emailColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getEmail()));
         patronTableView.getColumns().addAll(nameColumn, emailColumn);
+        patronTableView.setId("patronTableView");
         patronTableView.setItems(FXCollections.observableArrayList(patronListManager.getPatrons()));
 
         patronTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -144,6 +157,7 @@ public class MainApp extends Application {
         TableColumn<Transaction, Date> dateReturnedColumn = new TableColumn<>("Date Returned");
         dateReturnedColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getDateReturned()));
         transactionTableView.getColumns().addAll(bookIdColumn, patronNameColumn, bookTitleColumn, dateBorrowedColumn, dateDueColumn, dateReturnedColumn);
+        transactionTableView.setId("transactionTableView");
         transactionTableView.setItems(FXCollections.observableArrayList(transactionListManager.loadTransactions()));
 
 
